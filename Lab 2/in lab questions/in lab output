@@ -1,0 +1,559 @@
+
+SUM(SALARY)
+-----------
+     691416
+
+
+AVERAGE_SALARY
+--------------
+    6461.83178
+
+
+MANAGER_ID
+----------
+          
+       100
+       123
+       120
+       121
+       147
+       108
+       148
+       149
+       205
+       102
+
+MANAGER_ID
+----------
+       201
+       101
+       114
+       124
+       145
+       146
+       103
+       122
+
+19 rows selected. 
+
+
+MIN_SALARY
+----------
+      2100
+
+
+TO_CHAR(SY
+----------
+01-09-2025
+
+
+TO_CHAR(SYSDATE,'FMDAYFMMONTHYYYY')                                           
+------------------------------------------------------------------------------
+monday september 2025
+
+
+  COUNT(*)
+----------
+        15
+
+
+MONTHS_BETWEEN('01-JAN-2025','01-OCT-2024')
+-------------------------------------------
+                                          3
+
+
+Error starting at line : 26 in command -
+select emp_id, trunc(months_between(sysdate, hire_date)) months_worked from employees
+Error at Command Line : 26 Column : 8
+Error report -
+SQL Error: ORA-00904: "EMP_ID": invalid identifier
+
+https://docs.oracle.com/error-help/db/ora-00904/00904. 00000 -  "%s: invalid identifier"
+*Cause:    The identifier or column name entered was invalid.
+*Action:   Ensure the following
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00904/
+
+SUBST
+-----
+Abel
+Ande
+Atkin
+Austi
+Baer
+Baida
+Banda
+Bates
+Bell
+Berns
+Bisso
+
+SUBST
+-----
+Bloom
+Bull
+Cabri
+Cambr
+Cambr
+Chen
+Chung
+Colme
+Davie
+De Ha
+Delli
+
+SUBST
+-----
+Dilly
+Doran
+Ernst
+Erraz
+Evere
+Favie
+Fay
+Feene
+Fleau
+Fox
+Fripp
+
+SUBST
+-----
+Gates
+Gee
+Geoni
+Gietz
+Grant
+Grant
+Green
+Green
+Hall
+Harts
+Higgi
+
+SUBST
+-----
+Himur
+Hunol
+Hutto
+Johns
+Jones
+Kaufl
+Khoo
+King
+King
+Kochh
+Kumar
+
+SUBST
+-----
+Ladwi
+Landr
+Lee
+Livin
+Loren
+Malli
+Markl
+Marlo
+Marvi
+Matos
+Mavri
+
+SUBST
+-----
+McCai
+McEwe
+Mikki
+Mourg
+Nayer
+OConn
+Olsen
+Olson
+Ozer
+Partn
+Patab
+
+SUBST
+-----
+Patel
+Perki
+Philt
+Popp
+Rajs
+Rapha
+Roger
+Russe
+Sarch
+Sciar
+Seo
+
+SUBST
+-----
+Sewal
+Smith
+Smith
+Stile
+Sulli
+Sully
+Taylo
+Taylo
+Tobia
+Tucke
+Tuvau
+
+SUBST
+-----
+Urman
+Varga
+Vishn
+Vollm
+Walsh
+Weiss
+Whale
+Zlotk
+
+107 rows selected. 
+
+
+SUM(SALARY)
+-----------
+     691416
+
+
+AVERAGE_SALARY
+--------------
+    6461.83178
+
+
+MANAGER_ID
+----------
+          
+       100
+       123
+       120
+       121
+       147
+       108
+       148
+       149
+       205
+       102
+
+MANAGER_ID
+----------
+       201
+       101
+       114
+       124
+       145
+       146
+       103
+       122
+
+19 rows selected. 
+
+
+MIN_SALARY
+----------
+      2100
+
+
+TO_CHAR(SY
+----------
+01-09-2025
+
+
+TO_CHAR(SYSDATE,'FMDAYFMMONTHYYYY')                                           
+------------------------------------------------------------------------------
+monday september 2025
+
+
+  COUNT(*)
+----------
+        15
+
+
+MONTHS_BETWEEN('01-JAN-2025','01-OCT-2024')
+-------------------------------------------
+                                          3
+
+
+MONTHS_WORKED
+-------------
+          266
+          239
+          295
+          235
+          219
+          242
+          234
+          222
+          276
+          276
+          239
+
+MONTHS_WORKED
+-------------
+          239
+          233
+          212
+          272
+          267
+          236
+          241
+          225
+          216
+          253
+          244
+
+MONTHS_WORKED
+-------------
+          268
+          238
+          213
+          241
+          227
+          223
+          209
+          240
+          238
+          246
+          220
+
+MONTHS_WORKED
+-------------
+          254
+          228
+          212
+          210
+          265
+          238
+          234
+          232
+          262
+          247
+          233
+
+MONTHS_WORKED
+-------------
+          229
+          251
+          247
+          245
+          214
+          211
+          247
+          245
+          240
+          233
+          224
+
+MONTHS_WORKED
+-------------
+          213
+          259
+          257
+          253
+          245
+          236
+          225
+          237
+          221
+          211
+          210
+
+MONTHS_WORKED
+-------------
+          209
+          208
+          245
+          233
+          235
+          222
+          221
+          208
+          255
+          245
+          233
+
+MONTHS_WORKED
+-------------
+          232
+          219
+          211
+          235
+          234
+          218
+          210
+          259
+          246
+          230
+          222
+
+MONTHS_WORKED
+-------------
+          242
+          240
+          229
+          212
+          258
+          245
+          230
+          221
+          232
+          231
+          218
+
+MONTHS_WORKED
+-------------
+          211
+          263
+          258
+          240
+          278
+          278
+          278
+          278
+
+107 rows selected. 
+
+
+SUBST
+-----
+Abel
+Ande
+Atkin
+Austi
+Baer
+Baida
+Banda
+Bates
+Bell
+Berns
+Bisso
+
+SUBST
+-----
+Bloom
+Bull
+Cabri
+Cambr
+Cambr
+Chen
+Chung
+Colme
+Davie
+De Ha
+Delli
+
+SUBST
+-----
+Dilly
+Doran
+Ernst
+Erraz
+Evere
+Favie
+Fay
+Feene
+Fleau
+Fox
+Fripp
+
+SUBST
+-----
+Gates
+Gee
+Geoni
+Gietz
+Grant
+Grant
+Green
+Green
+Hall
+Harts
+Higgi
+
+SUBST
+-----
+Himur
+Hunol
+Hutto
+Johns
+Jones
+Kaufl
+Khoo
+King
+King
+Kochh
+Kumar
+
+SUBST
+-----
+Ladwi
+Landr
+Lee
+Livin
+Loren
+Malli
+Markl
+Marlo
+Marvi
+Matos
+Mavri
+
+SUBST
+-----
+McCai
+McEwe
+Mikki
+Mourg
+Nayer
+OConn
+Olsen
+Olson
+Ozer
+Partn
+Patab
+
+SUBST
+-----
+Patel
+Perki
+Philt
+Popp
+Rajs
+Rapha
+Roger
+Russe
+Sarch
+Sciar
+Seo
+
+SUBST
+-----
+Sewal
+Smith
+Smith
+Stile
+Sulli
+Sully
+Taylo
+Taylo
+Tobia
+Tucke
+Tuvau
+
+SUBST
+-----
+Urman
+Varga
+Vishn
+Vollm
+Walsh
+Weiss
+Whale
+Zlotk
+
+107 rows selected. 
+
