@@ -4,6 +4,7 @@ In Lab performed work
 ---
 <img width="698" height="439" alt="image" src="https://github.com/user-attachments/assets/2bfb5a56-d7b4-4651-ad60-1ada74323547" />
 ---
+
 create table students(
 id int, 
 std_name varchar(3),
