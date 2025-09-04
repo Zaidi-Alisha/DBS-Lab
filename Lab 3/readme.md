@@ -38,9 +38,15 @@ dept_name varchar(20) not null
 );
 
 select * from departments;
+truncate table departments;
 insert into departments(id, dept_name) values (1, 'AI');
-insert into departments(id, dept_name) values (5, 'CS');
-insert into departments(id, dept_name) values (4, 'SE');
+insert into departments(id, dept_name) values (2, 'CS');
+insert into departments(id, dept_name) values (3, 'SE');
+
+alter table students drop column dept_id;
+
+alter table students add dept_id int, add constraint fk foreign key(f_id) reference departments(id);
+
 
 
 
