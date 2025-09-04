@@ -15,11 +15,14 @@ check(age>=18)
 
 select * from students;
 
----for alteration in data (add columns)
+---
+
+for alteration in data (add columns)
 alter table students add salary int;
 alter table students add (City varchar(20) default 'Karachi', dept_id int);
 
----altering constraints
+---
+altering constraints
 alter table students add constraint unique_email unique(email);
 alter table students modify(std_name varchar(20) not null, email varchar(20) not null); 
 
