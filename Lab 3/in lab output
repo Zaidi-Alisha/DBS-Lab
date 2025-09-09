@@ -1,0 +1,49 @@
+
+Table EMPLOYEES created.
+
+
+Table EMPLOYEES altered.
+
+
+Error starting at line : 13 in command -
+insert into employees(emp_id, full_name, salary, dept_id) values (1, 'Ali', 5000, 1)
+Error report -
+ORA-02290: check constraint (TEST_USER.SYS_C007011) violated
+
+https://docs.oracle.com/error-help/db/ora-02290/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-02290/
+
+Table DEPARTMENTS created.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+Table EMPLOYEES altered.
+
+
+Table EMPLOYEES altered.
+
+
+Table EMPLOYEES altered.
+
+
+0 rows deleted.
+
+
+Table EMPLOYEES altered.
+
+
+Table EMPLOYEES altered.
+
+
+Table EMPLOYEES altered.
+
