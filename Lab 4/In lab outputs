@@ -1,0 +1,569 @@
+
+Error starting at line : 2 in command -
+create table departments (
+    dept_id int primary key,
+    dept_name varchar2(50) unique
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Table STUDENTS created.
+
+
+Table COURSES created.
+
+
+Table FACULTY created.
+
+
+Table ENROLLMENTS created.
+
+
+Error starting at line : 46 in command -
+insert into departments values (1, 'AI')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007012) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 47 in command -
+insert into departments values (2, 'CS')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007012) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 48 in command -
+insert into departments values (3, 'CY')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007012) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+Error starting at line : 74 in command -
+insert into enrollments values (3, 201)
+Error report -
+ORA-02291: integrity constraint (TEST_USER.SYS_C007051) violated - parent key not found
+
+https://docs.oracle.com/error-help/db/ora-02291/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-02291/
+
+1 row inserted.
+
+
+   DEPT_ID TOTAL_STUDENTS
+---------- --------------
+         1              4
+         2              2
+         3              2
+
+
+   DEPT_ID    AVG_GPA
+---------- ----------
+         1      3.175
+         2        3.4
+
+
+ COURSE_ID    AVG_FEE
+---------- ----------
+       102    55138.5
+       101    62024.5
+       103      41611
+
+
+   DEPT_ID FACULTY_COUNT
+---------- -------------
+         1             1
+         2             1
+         3             1
+
+
+FACULTY_ID NAME                                                   SALARY
+---------- -------------------------------------------------- ----------
+        13 Ms. Kinza                                              782363
+
+no rows selected
+
+STUDENT_ID NAME                                                      GPA
+---------- -------------------------------------------------- ----------
+         1 Alisha                                                    3.8
+         7 Anabiys                                                   3.7
+         5 Zunaira                                                   3.4
+
+
+Error starting at line : 103 in command -
+select s.student_id, s.name from students where not exists (
+    select course_id from enrollments e join students sa on e.student_id = sa.student_id where sa.name = 'Ali'
+    minus
+    select course_id from enrollments e2 where e2.student_id = s.student_id
+)
+Error at Command Line : 103 Column : 22
+Error report -
+SQL Error: ORA-00904: "S"."NAME": invalid identifier
+
+https://docs.oracle.com/error-help/db/ora-00904/00904. 00000 -  "%s: invalid identifier"
+*Cause:    The identifier or column name entered was invalid.
+*Action:   Ensure the following
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00904/
+
+   DEPT_ID TOTAL_FEES
+---------- ----------
+         1     230268
+         2      83222
+         3     128107
+
+
+ COURSE_ID COURSE_NAME                                       
+---------- --------------------------------------------------
+       101 DBMS                                              
+       102 DAA                                               
+
+
+Error starting at line : 2 in command -
+create table departments (
+    dept_id int primary key,
+    dept_name varchar2(50) unique
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 8 in command -
+create table students (
+    student_id int primary key,
+    name varchar2(50),
+    dept_id int,
+    gpa number(3,2),
+    fee number(10,2),
+    course_id int,
+    foreign key (dept_id) references departments(dept_id)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 19 in command -
+create table courses (
+    course_id int primary key,
+    course_name varchar2(50),
+    dept_id int,
+    foreign key (dept_id) references departments(dept_id)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 27 in command -
+create table faculty (
+    faculty_id int primary key,
+    name varchar2(50),
+    dept_id int,
+    salary number(10,2),
+    foreign key (dept_id) references departments(dept_id)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 36 in command -
+create table enrollments (
+    student_id int,
+    course_id int,
+    primary key (student_id, course_id),
+    foreign key (student_id) references students(student_id),
+    foreign key (course_id) references courses(course_id)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 46 in command -
+insert into departments values (1, 'AI')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007012) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 47 in command -
+insert into departments values (2, 'CS')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007012) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 48 in command -
+insert into departments values (3, 'CY')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007012) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 51 in command -
+insert into courses values (101, 'DBMS', 1)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007045) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 52 in command -
+insert into courses values (102, 'DAA', 1)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007045) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 53 in command -
+insert into courses values (103, 'AP', 2)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007045) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 56 in command -
+insert into students values (1, 'Alisha', 1, 3.8, 52335, 101)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007043) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 57 in command -
+insert into students values (2, 'Maha', 1, 2.9, 75643, 102)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007043) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 58 in command -
+insert into students values (3, 'Zara', 2, 3.1, 34566, 103)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007043) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 59 in command -
+insert into students values (4, 'Fasih', 3, 2.2, 87664, 101)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007043) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 60 in command -
+insert into students values (5, 'Zunaira', 1, 3.4, 67656, 101)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007043) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 61 in command -
+insert into students values (6, 'Amin', 1, 2.6, 34634, 102)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007043) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 62 in command -
+insert into students values (7, 'Anabiys', 2, 3.7, 48656, 103)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007043) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 63 in command -
+insert into students values (8, 'Dua', 3, 2.9, 40443, 101)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007043) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 66 in command -
+insert into faculty values (11, 'Dr. Kamran', 1, 93930)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007047) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 67 in command -
+insert into faculty values (12, 'Ms. Nazia', 2, 93724)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007047) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 68 in command -
+insert into faculty values (13, 'Ms. Kinza', 3, 782363)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007047) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 71 in command -
+insert into enrollments values (1, 101)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007049) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 72 in command -
+insert into enrollments values (1, 102)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007049) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 73 in command -
+insert into enrollments values (2, 101)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007049) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 74 in command -
+insert into enrollments values (3, 201)
+Error report -
+ORA-02291: integrity constraint (TEST_USER.SYS_C007051) violated - parent key not found
+
+https://docs.oracle.com/error-help/db/ora-02291/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-02291/
+
+Error starting at line : 75 in command -
+insert into enrollments values (4, 101)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007049) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+   DEPT_ID TOTAL_STUDENTS
+---------- --------------
+         1              4
+         2              2
+         3              2
+
+
+   DEPT_ID    AVG_GPA
+---------- ----------
+         1      3.175
+         2        3.4
+
+
+ COURSE_ID    AVG_FEE
+---------- ----------
+       102    55138.5
+       101    62024.5
+       103      41611
+
+
+   DEPT_ID FACULTY_COUNT
+---------- -------------
+         1             1
+         2             1
+         3             1
+
+
+FACULTY_ID NAME                                                   SALARY
+---------- -------------------------------------------------- ----------
+        13 Ms. Kinza                                              782363
+
+no rows selected
+
+STUDENT_ID NAME                                                      GPA
+---------- -------------------------------------------------- ----------
+         1 Alisha                                                    3.8
+         7 Anabiys                                                   3.7
+         5 Zunaira                                                   3.4
+
+
+Error starting at line : 103 in command -
+select s.student_id, s.name from students where not exists (
+    select course_id from enrollments e join students sa on e.student_id = sa.student_id where sa.name = 'Ali'
+    minus
+    select course_id from enrollments e2 where e2.student_id = s.student_id
+)
+Error at Command Line : 103 Column : 22
+Error report -
+SQL Error: ORA-00904: "S"."NAME": invalid identifier
+
+https://docs.oracle.com/error-help/db/ora-00904/00904. 00000 -  "%s: invalid identifier"
+*Cause:    The identifier or column name entered was invalid.
+*Action:   Ensure the following
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00904/
+
+   DEPT_ID TOTAL_FEES
+---------- ----------
+         1     230268
+         2      83222
+         3     128107
+
+
+ COURSE_ID COURSE_NAME                                       
+---------- --------------------------------------------------
+       101 DBMS                                              
+       102 DAA                                               
+
