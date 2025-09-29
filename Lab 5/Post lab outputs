@@ -1,0 +1,423 @@
+
+Error starting at line : 2 in command -
+create table DEPARTMENT (
+    deptid number primary key,
+    deptname varchar2(50)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 8 in command -
+create table EMPLOYEE (
+    empid number primary key,
+    empname varchar2(50),
+    deptid number,
+    managerid number,
+    hiredate date,
+    salary number,
+    foreign key (deptid) references DEPARTMENT(deptid),
+    foreign key (managerid) references EMPLOYEE(empid)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 20 in command -
+create table PROJECT (
+    projid number primary key,
+    projname varchar2(50),
+    empid number,
+    foreign key (empid) references EMPLOYEE(empid)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 28 in command -
+create table STUDENT (
+    studentid number primary key,
+    studentname varchar2(50),
+    city varchar2(50),
+    courseid number
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 36 in command -
+create table COURSE (
+    courseid number primary key,
+    coursename varchar2(50),
+    teacherid number
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 43 in command -
+create table TEACHER (
+    teacherid number primary key,
+    teachername varchar2(50),
+    subjectid number,
+    city varchar2(50)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 51 in command -
+create table SUBJECT (
+    subjectid number primary key,
+    subjectname varchar2(50)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 57 in command -
+create table CUSTOMER (
+    customerid number primary key,
+    customername varchar2(50)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 63 in command -
+create table ORDERS (
+    orderid number primary key,
+    customerid number,
+    orderdate date,
+    amount number,
+    foreign key (customerid) references CUSTOMER(customerid)
+)
+Error report -
+ORA-00955: name is already used by an existing object
+
+https://docs.oracle.com/error-help/db/ora-00955/00955. 00000 -  "name is already used by an existing object"
+*Cause:    An attempt was made to create a database object (such
+           as a table, view, cluster, index, or synonym) that already
+           existed. A user's database objects must have distinct names.
+*Action:   Enter a unique name for the database object or modify
+           or drop the existing object so it can be reused.
+
+Error starting at line : 73 in command -
+insert into DEPARTMENT values (1, 'IT')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007093) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 74 in command -
+insert into DEPARTMENT values (2, 'HR')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007093) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 75 in command -
+insert into DEPARTMENT values (3, 'Finance')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007093) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 78 in command -
+insert into EMPLOYEE values (101, 'Kinza', 1, null, date '2018-11-15', 672689)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007094) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 79 in command -
+insert into EMPLOYEE values (102, 'SNazia', 2, 101, date '2021-05-12', 556560)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007094) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 80 in command -
+insert into EMPLOYEE values (103, 'Farooq', 2, 101, date '2019-07-16', 367689)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007094) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 81 in command -
+insert into EMPLOYEE values (104, 'Marya', null, null, date '2023-03-15', 877675)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007094) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 84 in command -
+insert into PROJECT values (201, 'AI Project', 102)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007097) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 85 in command -
+insert into PROJECT values (202, 'DB Project', 103)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007097) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 88 in command -
+insert into STUDENT values (301, 'Alisha', 'Islamabad', 401)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007099) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 89 in command -
+insert into STUDENT values (302, 'Zara', 'Karachi', 402)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007099) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 90 in command -
+insert into STUDENT values (303, 'Maha', 'Lahore', 401)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007099) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 93 in command -
+insert into COURSE values (401, 'Database Systems', 501)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007100) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 94 in command -
+insert into COURSE values (402, 'Programming for AI', 502)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007100) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 97 in command -
+insert into TEACHER values (501, 'Miss Kinza', 601, 'Lahore')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007101) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 98 in command -
+insert into TEACHER values (502, 'Sir Rahim', 602, 'Karachi')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007101) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 101 in command -
+insert into SUBJECT values (601, 'Databases')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007102) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 102 in command -
+insert into SUBJECT values (602, 'Artificial Intelligence')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007102) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 105 in command -
+insert into CUSTOMER values (701, 'Customer A')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007103) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 106 in command -
+insert into CUSTOMER values (702, 'Customer B')
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007103) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 109 in command -
+insert into ORDERS values (801, 701, date '2023-01-05', 2000)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007104) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+Error starting at line : 110 in command -
+insert into ORDERS values (802, 701, date '2023-02-10', 3500)
+Error report -
+ORA-00001: unique constraint (TEST_USER.SYS_C007104) violated
+
+https://docs.oracle.com/error-help/db/ora-00001/
+
+More Details :
+https://docs.oracle.com/error-help/db/ora-00001/
+
+STUDENTNAME                                        TEACHERNAME                                        CITY                                              
+-------------------------------------------------- -------------------------------------------------- --------------------------------------------------
+Zara                                               Sir Rahim                                          Karachi                                           
+Maha                                               Miss Kinza                                         Lahore                                            
+
+
+EMPLOYEE                                           MANAGER                                           
+-------------------------------------------------- --------------------------------------------------
+Farooq                                             Kinza                                             
+SNazia                                             Kinza                                             
+Marya                                                                                                
+Kinza                                                                                                
+
+
+EMPNAME                                           
+--------------------------------------------------
+Marya
+
+
+DEPTNAME                                            AVGSALARY
+-------------------------------------------------- ----------
+IT                                                     672689
+HR                                                   462124.5
+
+
+EMPNAME                                                SALARY DEPTNAME                                          
+-------------------------------------------------- ---------- --------------------------------------------------
+SNazia                                                 556560 HR                                                
+
+
+DEPTNAME                                          
+--------------------------------------------------
+IT
+HR
+
+
+STUDENTNAME                                        COURSENAME                                        
+-------------------------------------------------- --------------------------------------------------
+Zara                                               Programming for AI                                
+
+
+EMPNAME                                            MANAGER                                            DEPTNAME                                          
+-------------------------------------------------- -------------------------------------------------- --------------------------------------------------
+SNazia                                             Kinza                                              HR                                                
+
+
+STUDENTNAME                                        COURSENAME                                        
+-------------------------------------------------- --------------------------------------------------
+Zara                                               Programming for AI                                
+
+no rows selected

@@ -1,0 +1,180 @@
+
+Table DEPARTMENT created.
+
+
+Table EMPLOYEE created.
+
+
+Table PROJECT created.
+
+
+Table STUDENT created.
+
+
+Table COURSE created.
+
+
+Table TEACHER created.
+
+
+Table SUBJECT created.
+
+
+Table CUSTOMER created.
+
+
+Table ORDERS created.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+1 row inserted.
+
+
+EMPNAME                                            DEPTNAME                                          
+-------------------------------------------------- --------------------------------------------------
+Kinza                                              IT                                                
+SNazia                                             IT                                                
+Farooq                                             IT                                                
+Marya                                              IT                                                
+Kinza                                              HR                                                
+SNazia                                             HR                                                
+Farooq                                             HR                                                
+Marya                                              HR                                                
+Kinza                                              Finance                                           
+SNazia                                             Finance                                           
+Farooq                                             Finance                                           
+
+EMPNAME                                            DEPTNAME                                          
+-------------------------------------------------- --------------------------------------------------
+Marya                                              Finance                                           
+
+12 rows selected. 
+
+
+DEPTNAME                                           EMPNAME                                           
+-------------------------------------------------- --------------------------------------------------
+IT                                                 Kinza                                             
+HR                                                 SNazia                                            
+HR                                                 Farooq                                            
+Finance                                                                                              
+
+
+EMPLOYEE                                           MANAGER                                           
+-------------------------------------------------- --------------------------------------------------
+Farooq                                             Kinza                                             
+SNazia                                             Kinza                                             
+Marya                                                                                                
+Kinza                                                                                                
+
+
+EMPNAME                                           
+--------------------------------------------------
+Kinza
+Marya
+
+
+STUDENTNAME                                        COURSENAME                                        
+-------------------------------------------------- --------------------------------------------------
+Alisha                                             Database Systems                                  
+Zara                                               Programming for AI                                
+Maha                                               Database Systems                                  
+
+
+CUSTOMERNAME                                          ORDERID
+-------------------------------------------------- ----------
+Customer A                                                801
+Customer A                                                802
+Customer B                                                   
+
+
+DEPTNAME                                           EMPNAME                                           
+-------------------------------------------------- --------------------------------------------------
+IT                                                 Kinza                                             
+HR                                                 SNazia                                            
+HR                                                 Farooq                                            
+Finance                                                                                              
+
+
+TEACHERNAME                                        SUBJECTNAME                                       
+-------------------------------------------------- --------------------------------------------------
+Miss Kinza                                         Databases                                         
+Miss Kinza                                         Artificial Intelligence                           
+Sir Rahim                                          Databases                                         
+Sir Rahim                                          Artificial Intelligence                           
+
+
+DEPTNAME                                           TOTALEMPLOYEES
+-------------------------------------------------- --------------
+IT                                                              1
+HR                                                              2
+Finance                                                         0
+
+
+STUDENTNAME                                        COURSENAME                                         TEACHERNAME                                       
+-------------------------------------------------- -------------------------------------------------- --------------------------------------------------
+Maha                                               Database Systems                                   Miss Kinza                                        
+Alisha                                             Database Systems                                   Miss Kinza                                        
+Zara                                               Programming for AI                                 Sir Rahim                                         
+
