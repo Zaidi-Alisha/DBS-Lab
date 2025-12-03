@@ -1,0 +1,951 @@
+1. Find employees who earn more than the average salary of all employees hired in the same year
+
+sql
+SELECT e1.employee_id, 
+       e1.first_name || ' ' || e1.last_name AS employee_name,
+       e1.salary,
+       EXTRACT(YEAR FROM e1.hire_date) AS hire_year
+FROM employees e1
+WHERE e1.salary > (
+    SELECT AVG(e2.salary)
+    FROM employees e2
+    WHERE EXTRACT(YEAR FROM e2.hire_date) = EXTRACT(YEAR FROM e1.hire_date)
+);
+
+
+
+List employees who have never worked in any previous job before their current job (no job_history), BUT their salary is less than the minimum salary of any employee who has job history
+
+sql
+SELECT e.employee_id, 
+       e.first_name || ' ' || e.last_name AS employee_name,
+       e.salary
+FROM employees e
+WHERE NOT EXISTS (
+    SELECT 1 
+    FROM job_history jh 
+    WHERE jh.employee_id = e.employee_id
+)
+AND e.salary < (
+    SELECT MIN(e2.salary)
+    FROM employees e2
+    WHERE EXISTS (
+        SELECT 1 
+        FROM job_history jh2 
+        WHERE jh2.employee_id = e2.employee_id
+    )
+);
+
+
+
+3. Show employee name, job_salary, commission, job avg commission. List employees whose commission (if any) is greater than the average commission of all employees in the same job title
+
+sql
+SELECT e.employee_id,
+       e.first_name || ' ' || e.last_name AS employee_name,
+       e.job_id,
+       e.salary,
+       e.commission_pct,
+       (SELECT AVG(commission_pct) 
+        FROM employees e2 
+        WHERE e2.job_id = e.job_id 
+        AND commission_pct IS NOT NULL) AS job_avg_commission
+FROM employees e
+WHERE e.commission_pct > (
+    SELECT AVG(commission_pct)
+    FROM employees e2
+    WHERE e2.job_id = e.job_id
+    AND e2.commission_pct IS NOT NULL
+)
+AND e.commission_pct IS NOT NULL;
+
+
+4. Show List employees who were hired in the year where the department hired the most employees
+
+sql
+WITH department_hiring AS (
+    SELECT department_id,
+           EXTRACT(YEAR FROM hire_date) AS hire_year,
+           COUNT(*) AS num_hires
+    FROM employees
+    GROUP BY department_id, EXTRACT(YEAR FROM hire_date)
+),
+max_hiring_year AS (
+    SELECT department_id,
+           hire_year,
+           num_hires,
+           RANK() OVER (PARTITION BY department_id ORDER BY num_hires DESC) AS rnk
+    FROM department_hiring
+)
+SELECT e.first_name || ' ' || e.last_name AS employee_name,
+       e.hire_date,
+       d.department_name,
+       mhy.num_hires AS total_hires_that_year,
+       EXTRACT(YEAR FROM e.hire_date) AS hire_year
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+JOIN max_hiring_year mhy ON e.department_id = mhy.department_id 
+    AND EXTRACT(YEAR FROM e.hire_date) = mhy.hire_year
+WHERE mhy.rnk = 1;
+
+
+5. List departments that have more than 3 employees with salary above 5,000
+
+sql
+SELECT d.department_name,
+       COUNT(*) AS num_high_earners
+FROM employees e
+JOIN departments d ON e.department_id = d.department_id
+WHERE e.salary > 5000
+GROUP BY d.department_id, d.department_name
+HAVING COUNT(*) > 3
+ORDER BY num_high_earners DESC;
+
+
+
+
+
+Part A: TRIGGER
+sql
+CREATE OR REPLACE TRIGGER prevent_negative_value
+BEFORE INSERT OR UPDATE ON PRODUCTS
+FOR EACH ROW
+DECLARE
+    old_stock NUMBER;
+    v_subtotal NUMBER;
+BEGIN
+    -- 1. Prevent negative or zero values for PRICE and STOCK
+    IF (:NEW.PRICE <= 0 OR :NEW.STOCK <= 0 OR :NEW.QUANTITY <= 0) THEN
+        RAISE_APPLICATION_ERROR(-20001, 
+            'Product price or product quantity cannot be negative or zero');
+    END IF;
+    
+    -- 2. Monitor low stock levels
+    IF (:NEW.STOCK < 5) THEN
+        RAISE_APPLICATION_ERROR(-20002, 
+            'The product is going out of stock');
+    END IF;
+    
+    -- 3. Restrict stock reduction during update
+    IF UPDATING THEN
+        IF (:NEW.STOCK < :OLD.STOCK * 0.5) THEN
+            RAISE_APPLICATION_ERROR(-20003, 
+                'Stock reduction exceeds allowed limit (50%)');
+        END IF;
+    END IF;
+    
+    -- 4. Automatically calculate SUBTOTAL and prevent manual modification
+    v_subtotal := :NEW.PRICE * :NEW.QUANTITY;
+    
+    -- Check if user tried to manually modify SUBTOTAL
+    IF (:NEW.SUBTOTAL IS NOT NULL AND :NEW.SUBTOTAL != v_subtotal) THEN
+        RAISE_APPLICATION_ERROR(-20004, 
+            'This field cannot be updated manually');
+    ELSE
+        :NEW.SUBTOTAL := v_subtotal;
+    END IF;
+    
+    -- 5. Automatically maintain audit fields
+    IF INSERTING THEN
+        :NEW.CREATED_BY := USER;
+        :NEW.UPDATED_BY := USER;
+    ELSIF UPDATING THEN
+        :NEW.UPDATED_BY := USER;
+        -- Keep original created_by value
+        :NEW.CREATED_BY := :OLD.CREATED_BY;
+    END IF;
+    
+    -- 6. Update LAST_UPDATED timestamp
+    :NEW.LAST_UPDATED := SYSTIMESTAMP;
+    
+EXCEPTION
+    WHEN OTHERS THEN
+        RAISE;
+END prevent_negative_value;
+/
+
+
+
+Part B: TRANSACTIONS
+sql
+DECLARE
+    v_order_id NUMBER;
+    v_cust_id NUMBER := 1001; -- Example customer ID
+    v_med_id NUMBER := 5001; -- Example medicine ID
+    v_qty NUMBER := 10; -- Example quantity
+    v_available_stock NUMBER;
+    v_message VARCHAR2(500);
+    
+    -- Custom exception for insufficient stock
+    insufficient_stock EXCEPTION;
+    PRAGMA EXCEPTION_INIT(insufficient_stock, -20010);
+BEGIN
+    -- Start transaction
+    SAVEPOINT start_transaction;
+    
+    -- Check if enough stock is available
+    SELECT stock INTO v_available_stock
+    FROM medicines
+    WHERE med_id = v_med_id
+    FOR UPDATE; -- Lock the row for update
+    
+    IF v_available_stock < v_qty THEN
+        v_message := 'Insufficient stock. Available: ' || v_available_stock;
+        INSERT INTO order_log (log_id, order_id, message, log_date)
+        VALUES (order_log_seq.NEXTVAL, NULL, v_message, SYSDATE);
+        RAISE insufficient_stock;
+    END IF;
+    
+    -- Generate order ID
+    SELECT order_seq.NEXTVAL INTO v_order_id FROM dual;
+    
+    -- Insert into orders table
+    INSERT INTO orders (order_id, cust_id, order_date)
+    VALUES (v_order_id, v_cust_id, SYSDATE);
+    
+    -- Insert into order_item table
+    INSERT INTO order_Item4 (item_id, order_id, med_id, qty)
+    VALUES (item_seq.NEXTVAL, v_order_id, v_med_id, v_qty);
+    
+    -- Update medicine stock
+    UPDATE medicines
+    SET stock = stock - v_qty
+    WHERE med_id = v_med_id;
+    
+    -- Record successful transaction log
+    v_message := 'Order ' || v_order_id || ' processed successfully. Quantity: ' || v_qty;
+    INSERT INTO order_log (log_id, order_id, message, log_date)
+    VALUES (order_log_seq.NEXTVAL, v_order_id, v_message, SYSDATE);
+    
+    -- Commit transaction
+    COMMIT;
+    
+    DBMS_OUTPUT.PUT_LINE('Transaction completed successfully. Order ID: ' || v_order_id);
+    
+EXCEPTION
+    WHEN insufficient_stock THEN
+        ROLLBACK TO start_transaction;
+        DBMS_OUTPUT.PUT_LINE('Transaction failed: ' || v_message);
+    WHEN OTHERS THEN
+        ROLLBACK TO start_transaction;
+        v_message := 'Error: ' || SQLERRM;
+        INSERT INTO order_log (log_id, order_id, message, log_date)
+        VALUES (order_log_seq.NEXTVAL, NULL, v_message, SYSDATE);
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('Transaction failed: ' || v_message);
+END;
+/
+
+
+Part B: TRANSACTIONS
+sql
+DECLARE
+    v_order_id NUMBER;
+    v_cust_id NUMBER := 1001; -- Example customer ID
+    v_med_id NUMBER := 5001; -- Example medicine ID
+    v_qty NUMBER := 10; -- Example quantity
+    v_available_stock NUMBER;
+    v_message VARCHAR2(500);
+    
+    -- Custom exception for insufficient stock
+    insufficient_stock EXCEPTION;
+    PRAGMA EXCEPTION_INIT(insufficient_stock, -20010);
+BEGIN
+    -- Start transaction
+    SAVEPOINT start_transaction;
+    
+    -- Check if enough stock is available
+    SELECT stock INTO v_available_stock
+    FROM medicines
+    WHERE med_id = v_med_id
+    FOR UPDATE; -- Lock the row for update
+    
+    IF v_available_stock < v_qty THEN
+        v_message := 'Insufficient stock. Available: ' || v_available_stock;
+        INSERT INTO order_log (log_id, order_id, message, log_date)
+        VALUES (order_log_seq.NEXTVAL, NULL, v_message, SYSDATE);
+        RAISE insufficient_stock;
+    END IF;
+    
+    -- Generate order ID
+    SELECT order_seq.NEXTVAL INTO v_order_id FROM dual;
+    
+    -- Insert into orders table
+    INSERT INTO orders (order_id, cust_id, order_date)
+    VALUES (v_order_id, v_cust_id, SYSDATE);
+    
+    -- Insert into order_item table
+    INSERT INTO order_Item4 (item_id, order_id, med_id, qty)
+    VALUES (item_seq.NEXTVAL, v_order_id, v_med_id, v_qty);
+    
+    -- Update medicine stock
+    UPDATE medicines
+    SET stock = stock - v_qty
+    WHERE med_id = v_med_id;
+    
+    -- Record successful transaction log
+    v_message := 'Order ' || v_order_id || ' processed successfully. Quantity: ' || v_qty;
+    INSERT INTO order_log (log_id, order_id, message, log_date)
+    VALUES (order_log_seq.NEXTVAL, v_order_id, v_message, SYSDATE);
+    
+    -- Commit transaction
+    COMMIT;
+    
+    DBMS_OUTPUT.PUT_LINE('Transaction completed successfully. Order ID: ' || v_order_id);
+    
+EXCEPTION
+    WHEN insufficient_stock THEN
+        ROLLBACK TO start_transaction;
+        DBMS_OUTPUT.PUT_LINE('Transaction failed: ' || v_message);
+    WHEN OTHERS THEN
+        ROLLBACK TO start_transaction;
+        v_message := 'Error: ' || SQLERRM;
+        INSERT INTO order_log (log_id, order_id, message, log_date)
+        VALUES (order_log_seq.NEXTVAL, NULL, v_message, SYSDATE);
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('Transaction failed: ' || v_message);
+END;
+/
+
+
+
+ PL/SQL Order Billing System (LLO #: 4)
+Complete Implementation:
+sql
+-- Step 1: Create ORDER_ITEM object type
+CREATE OR REPLACE TYPE ORDER_ITEM AS OBJECT (
+    item_name VARCHAR2(100),
+    quantity NUMBER,
+    price_per_unit NUMBER(10,2),
+    
+    -- Member function to calculate total cost with discount
+    MEMBER FUNCTION total_cost RETURN NUMBER
+);
+/
+
+-- Step 2: Define the member function body
+CREATE OR REPLACE TYPE BODY ORDER_ITEM AS
+    MEMBER FUNCTION total_cost RETURN NUMBER IS
+        v_cost NUMBER(10,2);
+    BEGIN
+        -- Calculate base cost
+        v_cost := self.quantity * self.price_per_unit;
+        
+        -- Apply 5% discount if quantity > 5
+        IF self.quantity > 5 THEN
+            v_cost := v_cost * 0.95; -- 5% discount
+        END IF;
+        
+        RETURN v_cost;
+    END total_cost;
+END;
+/
+
+-- Step 3: Create object table
+CREATE TABLE order_items_table OF ORDER_ITEM;
+
+-- Step 4: Insert sample data
+INSERT INTO order_items_table VALUES (
+    ORDER_ITEM('Laptop', 2, 80000)
+);
+INSERT INTO order_items_table VALUES (
+    ORDER_ITEM('Mouse', 10, 2000) -- Quantity > 5, will get discount
+);
+INSERT INTO order_items_table VALUES (
+    ORDER_ITEM('Keyboard', 3, 5000)
+);
+INSERT INTO order_items_table VALUES (
+    ORDER_ITEM('Monitor', 8, 25000) -- Quantity > 5, will get discount
+);
+
+COMMIT;
+
+-- Step 5: PL/SQL block to process orders
+DECLARE
+    v_item_name VARCHAR2(100);
+    v_quantity NUMBER;
+    v_price NUMBER(10,2);
+    v_total_cost NUMBER(10,2);
+    v_highest_bill NUMBER(10,2) := 0;
+    
+    CURSOR item_cursor IS
+        SELECT o.item_name, o.quantity, o.price_per_unit, o.total_cost()
+        FROM order_items_table o;
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('=== ORDER BILLING SYSTEM ===');
+    DBMS_OUTPUT.PUT_LINE('Item Name | Quantity | Price | Total Cost');
+    DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+    
+    FOR item_rec IN item_cursor LOOP
+        v_total_cost := item_rec.total_cost;
+        
+        -- Print item details
+        DBMS_OUTPUT.PUT_LINE(
+            RPAD(item_rec.item_name, 10) || ' | ' ||
+            LPAD(item_rec.quantity, 8) || ' | ' ||
+            LPAD(item_rec.price_per_unit, 8) || ' | ' ||
+            LPAD(v_total_cost, 12)
+        );
+        
+        -- Track highest bill
+        IF v_total_cost > v_highest_bill THEN
+            v_highest_bill := v_total_cost;
+        END IF;
+    END LOOP;
+    
+    DBMS_OUTPUT.PUT_LINE('--------------------------------------------');
+    DBMS_OUTPUT.PUT_LINE('Highest Bill Amount: ' || v_highest_bill);
+END;
+/
+
+
+
+mongodb
+// 1. Create and switch to your database
+use wholesale_store
+
+// 2. Create Employees collection
+db.createCollection("employees")
+
+// 3. Create Orders collection  
+db.createCollection("orders")
+
+// 4. Verify collections
+show collections
+
+
+
+// Switch to your database
+use wholesale_store
+
+// INSERT EMPLOYEES DATA
+db.employees.insertMany([
+    {
+        "_id": ObjectId("655a1b2c3d4e5f6a7b8c9d01"),
+        "name": "John Doe",
+        "department": "IT",
+        "salary": 75000,
+        "lastActive": ISODate("2024-10-05"),
+        "bonus": 0
+    },
+    {
+        "_id": ObjectId("655a1b2c3d4e5f6a7b8c9d02"),
+        "name": "Jane Smith", 
+        "department": "HR",
+        "salary": 65000,
+        "lastActive": ISODate("2024-11-15"),
+        "bonus": 5000
+    },
+    {
+        "_id": ObjectId("655a1b2c3d4e5f6a7b8c9d03"),
+        "name": "Bob Johnson",
+        "department": "IT",
+        "salary": 85000,
+        "lastActive": ISODate("2024-11-28"),
+        "bonus": 0
+    },
+    {
+        "_id": ObjectId("655a1b2c3d4e5f6a7b8c9d04"),
+        "name": "Alice Williams",
+        "department": "HR", 
+        "salary": 72000,
+        "lastActive": ISODate("2024-10-20"),
+        "bonus": 3000
+    },
+    {
+        "_id": ObjectId("655a1b2c3d4e5f6a7b8c9d05"),
+        "name": "Michael Brown",
+        "department": "Finance",
+        "salary": 90000,
+        "lastActive": ISODate("2024-11-30"),
+        "bonus": 0
+    },
+    {
+        "_id": ObjectId("655a1b2c3d4e5f6a7b8c9d06"),
+        "name": "Amanda Clark",
+        "department": "HR",
+        "salary": 68000,
+        "lastActive": ISODate("2024-09-15"),
+        "bonus": 2000
+    },
+    {
+        "_id": ObjectId("655a1b2c3d4e5f6a7b8c9d07"),
+        "name": "Andrew Miller",
+        "department": "IT",
+        "salary": 80000,
+        "lastActive": ISODate("2024-11-25"),
+        "bonus": 1000
+    },
+    {
+        "_id": ObjectId("655a1b2c3d4e5f6a7b8c9d08"),
+        "name": "Maria Garcia",
+        "department": "Finance",
+        "salary": 95000,
+        "lastActive": ISODate("2024-10-10"),
+        "bonus": 0
+    }
+])
+
+// INSERT ORDERS DATA
+db.orders.insertMany([
+    {
+        "_id": ObjectId("655b2c3d4e5f6a7b8c9d9a01"),
+        "customerId": ObjectId("507f1f77bcf86cd799439011"),
+        "CustomerName": "Ali Khan",
+        "email": "ali@example.com",
+        "orderDate": ISODate("2024-03-11"),
+        "totalAmount": 15000,
+        "items": [
+            {"product": "Laptop", "price": 80000, "qty": 1},
+            {"product": "Mouse", "price": 2000, "qty": 2}
+        ]
+    },
+    {
+        "_id": ObjectId("655b2c3d4e5f6a7b8c9d9a02"),
+        "customerId": ObjectId("507f1f77bcf86cd799439012"),
+        "CustomerName": "Sara Ahmed",
+        "email": "sara@example.com",
+        "orderDate": ISODate("2024-03-15"),
+        "totalAmount": 85000,
+        "items": [
+            {"product": "Laptop", "price": 80000, "qty": 1},
+            {"product": "Keyboard", "price": 5000, "qty": 1}
+        ]
+    },
+    {
+        "_id": ObjectId("655b2c3d4e5f6a7b8c9d9a03"),
+        "customerId": ObjectId("507f1f77bcf86cd799439013"),
+        "CustomerName": "Ahmed Raza",
+        "email": "ahmed@example.com",
+        "orderDate": ISODate("2024-04-01"),
+        "totalAmount": 12000,
+        "items": [
+            {"product": "Mouse", "price": 2000, "qty": 6}
+        ]
+    },
+    {
+        "_id": ObjectId("655b2c3d4e5f6a7b8c9d9a04"),
+        "customerId": ObjectId("507f1f77bcf86cd799439011"),
+        "CustomerName": "Ali Khan",
+        "email": "ali@example.com",
+        "orderDate": ISODate("2024-05-10"),
+        "totalAmount": 30000,
+        "items": [
+            {"product": "Monitor", "price": 25000, "qty": 1},
+            {"product": "Mouse", "price": 2000, "qty": 2},
+            {"product": "Keyboard", "price": 5000, "qty": 1}
+        ]
+    },
+    {
+        "_id": ObjectId("655b2c3d4e5f6a7b8c9d9a05"),
+        "customerId": ObjectId("507f1f77bcf86cd799439014"),
+        "CustomerName": "Fatima Khan",
+        "email": "fatima@example.com",
+        "orderDate": ISODate("2024-06-20"),
+        "totalAmount": 180000,
+        "items": [
+            {"product": "Laptop", "price": 80000, "qty": 2},
+            {"product": "Monitor", "price": 25000, "qty": 1}
+        ]
+    }
+])
+
+// VERIFY DATA INSERTION
+db.employees.countDocuments()
+db.orders.countDocuments()
+
+
+QUERY 1: Find employees who have not received any bonus
+// Simple find query
+db.employees.find({ bonus: 0 })
+
+// Better formatted output
+db.employees.find(
+    { bonus: 0 },
+    { name: 1, department: 1, salary: 1, bonus: 1, _id: 0 }
+).pretty()
+
+
+Query 2: Get top 3 highest-paid employees from HR department
+// Step 1: Filter by HR department
+// Step 2: Sort by salary descending
+// Step 3: Limit to 3 results
+
+db.employees.find(
+    { department: "HR" },  // Filter condition
+    { 
+        name: 1, 
+        department: 1, 
+        salary: 1, 
+        _id: 0 
+    }
+)
+.sort({ salary: -1 })  // Sort by salary descending (-1 means descending)
+.limit(3)             // Get only top 3
+.pretty()
+
+// Alternative: Using aggregate for more control
+db.employees.aggregate([
+    { $match: { department: "HR" } },  // Filter HR department
+    { $sort: { salary: -1 } },         // Sort by salary
+    { $limit: 3 },                     // Get top 3
+    { $project: {                      // Select specific fields
+        name: 1,
+        department: 1,
+        salary: 1,
+        _id: 0
+    }}
+])
+
+
+Query 3: Increase salary by 10% for employees active in last 30 days
+// IMPORTANT: Do this in steps and take screenshots!
+
+// Step 1: Check current date
+new Date()
+// Note: Today's date will be displayed
+
+// Step 2: Calculate date 30 days ago
+var thirtyDaysAgo = new Date();
+thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+thirtyDaysAgo
+
+// Step 3: Find employees active in last 30 days (BEFORE update)
+db.employees.find(
+    { 
+        lastActive: { $gte: thirtyDaysAgo }  // $gte = greater than or equal to
+    },
+    { 
+        name: 1, 
+        salary: 1, 
+        lastActive: 1, 
+        _id: 0 
+    }
+).pretty()
+
+// Step 4: Count how many will be updated
+db.employees.countDocuments({ lastActive: { $gte: thirtyDaysAgo } })
+
+// Step 5: Update salaries by 10%
+db.employees.updateMany(
+    { lastActive: { $gte: thirtyDaysAgo } },  // Filter condition
+    { 
+        $mul: { salary: 1.10 }  // Multiply salary by 1.10 (increase by 10%)
+    }
+)
+
+// Step 6: Check the update result
+// It will show: { acknowledged: true, modifiedCount: X }
+
+// Step 7: View employees after update (AFTER update)
+db.employees.find(
+    { lastActive: { $gte: thirtyDaysAgo } },
+    { 
+        name: 1, 
+        salary: 1, 
+        lastActive: 1, 
+        _id: 0 
+    }
+).pretty()
+
+
+
+Query 4: Find total spending per customer
+// Using aggregation pipeline
+db.orders.aggregate([
+    {
+        $group: {
+            _id: "$CustomerName",  // Group by customer name
+            totalSpending: { $sum: "$totalAmount" },  // Sum all amounts
+            totalOrders: { $sum: 1 },  // Count number of orders
+            email: { $first: "$email" }  // Get email from first document
+        }
+    },
+    {
+        $sort: { totalSpending: -1 }  // Sort by spending descending
+    },
+    {
+        $project: {
+            CustomerName: "$_id",
+            totalSpending: 1,
+            totalOrders: 1,
+            email: 1,
+            _id: 0
+        }
+    }
+])
+
+// Alternative simpler version
+db.orders.aggregate([
+    {
+        $group: {
+            _id: "$CustomerName",
+            totalSpending: { $sum: "$totalAmount" },
+            orderCount: { $sum: 1 }
+        }
+    },
+    { $sort: { totalSpending: -1 } }
+])
+
+
+Query 5: Identify customers with more than 5 orders
+// First, let's check current order counts
+db.orders.aggregate([
+    {
+        $group: {
+            _id: "$CustomerName",
+            orderCount: { $sum: 1 }
+        }
+    },
+    { $sort: { orderCount: -1 } }
+])
+
+// Now find customers with more than 5 orders
+db.orders.aggregate([
+    {
+        $group: {
+            _id: "$CustomerName",
+            orderCount: { $sum: 1 },
+            email: { $first: "$email" }
+        }
+    },
+    {
+        $match: { orderCount: { $gt: 5 } }  // $gt = greater than
+    },
+    {
+        $project: {
+            CustomerName: "$_id",
+            orderCount: 1,
+            email: 1,
+            _id: 0
+        }
+    }
+])
+
+// Since we don't have any customer with >5 orders in sample data,
+// let's also show customers with >1 order for demonstration
+db.orders.aggregate([
+    {
+        $group: {
+            _id: "$CustomerName",
+            orderCount: { $sum: 1 }
+        }
+    },
+    {
+        $match: { orderCount: { $gt: 1 } }
+    },
+    { $sort: { orderCount: -1 } }
+])
+
+
+
+Query 6: Find orders where any item price > 50,000
+// Method 1: Simple query
+db.orders.find({
+    "items.price": { $gt: 50000 }
+}).pretty()
+
+// Method 2: With better formatting and specific fields
+db.orders.find(
+    { "items.price": { $gt: 50000 } },
+    { 
+        CustomerName: 1,
+        orderDate: 1,
+        totalAmount: 1,
+        "items.product": 1,
+        "items.price": 1,
+        _id: 0
+    }
+).pretty()
+
+// Method 3: Using aggregation to show high-priced items separately
+db.orders.aggregate([
+    { $unwind: "$items" },  // Break array into separate documents
+    { $match: { "items.price": { $gt: 50000 } } },
+    {
+        $project: {
+            CustomerName: 1,
+            orderDate: 1,
+            product: "$items.product",
+            price: "$items.price",
+            quantity: "$items.qty",
+            itemTotal: { $multiply: ["$items.price", "$items.qty"] },
+            _id: 0
+        }
+    },
+    { $sort: { price: -1 } }
+])
+
+
+
+Query 7: Find employees whose name starts with A or M
+// Method 1: Using $regex
+db.employees.find({
+    name: { $regex: '^(A|M)' }  // ^ means starts with
+}, {
+    name: 1,
+    department: 1,
+    salary: 1,
+    _id: 0
+}).pretty()
+
+// Method 2: Using $or operator with $regex
+db.employees.find({
+    $or: [
+        { name: { $regex: '^A' } },
+        { name: { $regex: '^M' } }
+    ]
+}, {
+    name: 1,
+    department: 1,
+    _id: 0
+}).pretty()
+
+// Method 3: Case-insensitive search
+db.employees.find({
+    name: { $regex: '^(a|m)', $options: 'i' }  // 'i' means case-insensitive
+}, {
+    name: 1,
+    department: 1,
+    _id: 0
+}).pretty()
+
+// Count how many
+db.employees.countDocuments({
+    name: { $regex: '^(A|M)' }
+})
+
+
+
+Query 8: Most frequently purchased product
+// Using aggregation pipeline
+db.orders.aggregate([
+    // Step 1: Unwind the items array (break into separate documents)
+    { $unwind: "$items" },
+    
+    // Step 2: Group by product and calculate totals
+    {
+        $group: {
+            _id: "$items.product",
+            totalQuantitySold: { $sum: "$items.qty" },
+            totalRevenue: { 
+                $sum: { 
+                    $multiply: ["$items.price", "$items.qty"] 
+                } 
+            },
+            numberOfOrders: { $sum: 1 },
+            averagePrice: { $avg: "$items.price" }
+        }
+    },
+    
+    // Step 3: Sort by quantity sold (descending)
+    { $sort: { totalQuantitySold: -1 } },
+    
+    // Step 4: Get only the top product
+    { $limit: 1 },
+    
+    // Step 5: Format the output
+    {
+        $project: {
+            Product: "$_id",
+            totalQuantitySold: 1,
+            totalRevenue: 1,
+            numberOfOrders: 1,
+            averagePrice: 1,
+            _id: 0
+        }
+    }
+])
+
+// Alternative: Get top 3 products
+db.orders.aggregate([
+    { $unwind: "$items" },
+    {
+        $group: {
+            _id: "$items.product",
+            totalQuantitySold: { $sum: "$items.qty" }
+        }
+    },
+    { $sort: { totalQuantitySold: -1 } },
+    { $limit: 3 }
+])
+
+
+Query 9: Total revenue year-wise
+// Using aggregation with date operators
+db.orders.aggregate([
+    {
+        $group: {
+            _id: {
+                $year: "$orderDate"  // Extract year from date
+            },
+            totalRevenue: { $sum: "$totalAmount" },
+            totalOrders: { $sum: 1 },
+            averageOrderValue: { $avg: "$totalAmount" }
+        }
+    },
+    { $sort: { _id: 1 } },  // Sort by year ascending
+    
+    // Format output
+    {
+        $project: {
+            Year: "$_id",
+            totalRevenue: 1,
+            totalOrders: 1,
+            averageOrderValue: 1,
+            _id: 0
+        }
+    }
+])
+
+// Alternative: Group by year and month
+db.orders.aggregate([
+    {
+        $group: {
+            _id: {
+                year: { $year: "$orderDate" },
+                month: { $month: "$orderDate" }
+            },
+            totalRevenue: { $sum: "$totalAmount" },
+            orderCount: { $sum: 1 }
+        }
+    },
+    { $sort: { "_id.year": 1, "_id.month": 1 } }
+])
+
+
+Query 10: Additional Practice Query - Find employees with salary between 70000 and 90000
+// Bonus query for practice
+db.employees.find({
+    salary: { 
+        $gte: 70000,  // Greater than or equal to 70000
+        $lte: 90000   // Less than or equal to 90000
+    }
+}, {
+    name: 1,
+    department: 1,
+    salary: 1,
+    _id: 0
+})
+.sort({ salary: -1 })
+.pretty()
+
+
+
+PHASE 5: CREATE INDEXES FOR PERFORMANCE
+// Create indexes to speed up queries
+db.employees.createIndex({ department: 1 })
+db.employees.createIndex({ salary: -1 })
+db.employees.createIndex({ lastActive: -1 })
+db.employees.createIndex({ name: 1 })
+db.employees.createIndex({ bonus: 1 })
+
+db.orders.createIndex({ CustomerName: 1 })
+db.orders.createIndex({ orderDate: -1 })
+db.orders.createIndex({ "items.price": 1 })
+db.orders.createIndex({ totalAmount: -1 })
+
+// View all indexes
+db.employees.getIndexes()
+db.orders.getIndexes()
+
